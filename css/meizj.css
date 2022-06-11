@@ -1,0 +1,149 @@
+#menu-inner{
+  position: absolute;
+  right:20%;
+}
+
+
+#menuLabel{
+  position: relative;
+  padding:10px;
+  z-index:100;
+  font:400 18px/1.62 "Georgia","Xin Gothic","Hiragino Sans GB","Droid Sans Fallback","Microsoft YaHei",sans-serif;
+
+}
+
+#blogTitle{
+  position: relative;
+  left:40%;
+  font-size:2rem;
+  font-family: Baskerville,Georgia,"Liberation Serif",Kaiti SC,STKaiti,AR PL UKai CN,AR PL UKai HK,AR PL UKai TW,AR PL UKai TW MBE,AR PL KaitiM GB,KaiTi,KaiTi_GB2312,DFKai-SB,TW\\-Kai,serif;
+
+}
+
+.recent-post-item{
+  position: relative;
+  left:40%;
+  margin:30px auto;
+  font-size:1.4em;
+  font-family: Baskerville,Georgia,"Liberation Serif",Kaiti SC,STKaiti,AR PL UKai CN,AR PL UKai HK,AR PL UKai TW,AR PL UKai TW MBE,AR PL KaitiM GB,KaiTi,KaiTi_GB2312,DFKai-SB,TW\\-Kai,serif;
+}
+
+
+#paginator{
+  position: relative;
+  left:50%;
+
+}
+
+.page-number{
+  margin:0 8px;
+
+}
+
+#page{
+  position: relative;
+  left:30%;
+  width:50%;
+}
+
+#post{
+  position: absolute;
+  width: 1000px;
+  font-size: 18px;
+  left: 50%;
+}
+
+#datetime{
+  font-style: italic;
+  font-size: 1em;
+  color:gray;
+  padding:10px;
+  font:400 18px/1.62 "Georgia","Xin Gothic","Hiragino Sans GB","Droid Sans Fallback","Microsoft YaHei",sans-serif;
+}
+
+.code{
+  display: inline-block;
+  background-size: cover;
+  
+  word-wrap:break-word;
+  white-space: pre-wrap;
+}
+
+.prettyprint{
+  width: 800px;
+  font-size: 1em;
+  overflow: auto;
+}
+
+
+#content-inner{
+  position: relative;
+  color: #39393C;
+  width:860px;
+  padding:65px 0 25px;
+  font: 400 16px/1 "Open Sans","Hiragino Sans GB",sans-serif;
+}
+
+#postTitle{
+  position: relative;
+  /* left:10%; */
+  width:100%;
+  font-size:2em;
+  text-align: center;
+
+}
+
+#bottom-outer{
+  position: absolute;
+  bottom: 1rem;
+  left:40%;
+}
+
+#footer {
+  color: gray;
+  font-size: 18px;
+  text-align: center;
+  line-height: 34px;
+  position: fixed;
+  bottom: 0px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  font:400 18px/1 "Open Sans","Hiragino Sans GB",sans-serif;
+}
+#toc{
+  list-style-type:none;
+  overflow: auto;
+  width:20%;
+  position: fixed;
+  left: 3%;
+  top:20%;
+  min-height: 100%;
+}
+
+#toc a{
+  color: #999;
+  border-bottom: 0;
+  -webkit-transition: 0.2s;
+  -moz-transition: 0.2s;
+  -ms-transition: 0.2s;
+  -o-transition: 0.2s;
+}
+
+#toc a:hover{
+  /*color: #87daff;*/
+  color: #e5c07b;
+  padding-left: 20px;
+  -webkit-transition: 0.1s;
+  -moz-transition: 0.1s;
+  -ms-transition: 0.1s;
+  -o-transition: 0.1s;
+}
+
+#bar{
+  text-decoration:none;
+  color: #39393C;
+  font: 400 18px/1 "Open Sans","Hiragino Sans GB",sans-serif;
+}
+
+#post a{
+  color: #026ed2;
+}

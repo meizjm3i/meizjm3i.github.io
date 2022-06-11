@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500&family=Roboto+Serif:opsz,wght@8..144,100&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>
+        梅子酒の笔记本
+    </title>
+    <link rel="stylesheet" href="/libs/highlight/styles/monokai-sublime.css">
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body id="bodyx">
+    <div class="hd posts">
+    <a href="/index.html"><i class="fa fa-reply replay-btn" aria-hidden="true"></i></a>
+    <div class="post-title">
+        <p>
+            Struts2漏洞调试笔记[S2-001]
+        </p>
+        <hr>
+    </div>
+    <div class="post-content heti">
+        <h1 id="struts2漏洞调试笔记s2-001"><a class="markdownIt-Anchor" href="#struts2漏洞调试笔记s2-001"></a> Struts2漏洞调试笔记[S2-001]</h1>
+<h2 id="配置文件"><a class="markdownIt-Anchor" href="#配置文件"></a> 配置文件</h2>
+<p>Struts.xml:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE struts PUBLIC</span></span><br><span class="line"><span class="meta">        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"</span></span><br><span class="line"><span class="meta">        "http://struts.apache.org/dtds/struts-2.0.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">struts</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">package</span> <span class="attr">name</span>=<span class="string">"struts2"</span> <span class="attr">extends</span>=<span class="string">"struts-default"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">action</span> <span class="attr">name</span>=<span class="string">"login"</span> <span class="attr">class</span>=<span class="string">"meizj.test"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">result</span> <span class="attr">name</span>=<span class="string">"success"</span>&gt;</span>success.jsp<span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">result</span> <span class="attr">name</span>=<span class="string">"error"</span>&gt;</span>index.jsp<span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">action</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">package</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">struts</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>web.xml:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">web-app</span> <span class="attr">xmlns</span>=<span class="string">"http://xmlns.jcp.org/xml/ns/javaee"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">version</span>=<span class="string">"3.1"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">display-name</span>&gt;</span>Struts2-001 Example<span class="tag">&lt;/<span class="name">display-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>struts2<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>org.apache.struts2.dispatcher.FilterDispatcher<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>struts2<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">welcome-file-list</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">welcome-file</span>&gt;</span>index.jsp<span class="tag">&lt;/<span class="name">welcome-file</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">welcome-file-list</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>index.jsp:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page contentType=<span class="string">"text/html;charset=UTF-8"</span> language=<span class="string">"java"</span> %&gt;</span><br><span class="line">&lt;%@ taglib prefix=<span class="string">"s"</span> uri=<span class="string">"/struts-tags"</span> %&gt;</span><br><span class="line">&lt;!doctype html&gt;</span><br><span class="line">&lt;html lang=<span class="string">"en"</span>&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">  &lt;meta charset=<span class="string">"UTF-8"</span>&gt;</span><br><span class="line">  &lt;meta name=<span class="string">"viewport"</span></span><br><span class="line">        content=<span class="string">"width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"</span>&gt;</span><br><span class="line">  &lt;meta http-equiv=<span class="string">"X-UA-Compatible"</span> content=<span class="string">"ie=edge"</span>&gt;</span><br><span class="line">  &lt;title&gt;Struts2 001 Demo&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">  &lt;h1&gt;Struts2 001 Demo&lt;/h1&gt;</span><br><span class="line">  &lt;s:form action=<span class="string">"login"</span>&gt;</span><br><span class="line">    &lt;s:textfield name="username" label="username"&gt;&lt;/s:textfield&gt;</span><br><span class="line">    &lt;s:textfield name="password" label="password"&gt;&lt;/s:textfield&gt;</span><br><span class="line">    &lt;s:submit&gt;&lt;/s:submit&gt;</span><br><span class="line">  &lt;/s:form&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<p>success.jsp:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page language=<span class="string">"java"</span> contentType=<span class="string">"text/html; charset=UTF-8"</span> pageEncoding=<span class="string">"UTF-8"</span>%&gt;</span><br><span class="line">&lt;%@ taglib prefix=<span class="string">"s"</span> uri=<span class="string">"/struts-tags"</span> %&gt;</span><br><span class="line">&lt;!DOCTYPE html PUBLIC <span class="string">"-//W3C//DTD HTML 4.01 Transitional//EN"</span> <span class="string">"http://www.w3.org/TR/html4/loose.dtd"</span>&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;meta http-equiv=<span class="string">"Content-Type"</span> content=<span class="string">"text/html; charset=UTF-8"</span>&gt;</span><br><span class="line">    &lt;title&gt;S2-001&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;p&gt;Hello &lt;s:property value="username"&gt;&lt;/s:property&gt;&lt;/p&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="漏洞调试"><a class="markdownIt-Anchor" href="#漏洞调试"></a> 漏洞调试</h2>
+<p>先简单了解下什么是拦截器:</p>
+<blockquote>
+<p>拦截器可以在Action的业务逻辑执行前后进行拦截调用，从而实现特定功能。</p>
+</blockquote>
+<p>而在Struts2 001这个洞中，触发点在于表单字段位置，因此先来看看拦截器的加载情况。</p>
+<p>Struts2中规定了一些默认加载的拦截器，在Struts-default.xml中可以找到，我们直接看到对应的<code>Param</code>:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/Znhdp9.png" alt></p>
+<p>调用的类为<code>com.opensymphony.xwork2.interceptor.ParametersInterceptor</code>，跟进<code>ParametersInterceptor</code>，可以看到:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhUfJ.png" alt></p>
+<p>在拦截器作用时，会进行值栈操作，我这里把<code>getValueStack</code>、<code>setParameters</code>以及<code>return invocation.invoke()</code>都打了断点。</p>
+<p>接下来可以<code>step over</code>，接下来会走到<code>return invocation.invoke()</code>，此时开始换用<code>step into</code>，接着经过几次步入，会抵达</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhNY4.png" alt></p>
+<p>步入<code>executeResult</code>:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhtkF.png" alt></p>
+<p>不断步入，直到到达<code>doFilter</code>方法后步入开始不显示源码，继续步入即可解决:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhJTU.png" alt></p>
+<p>直到开始解析jsp文件，对于前面的标签可以直接<code>step over</code>，着重关注<code>password</code>字段的处理即可。</p>
+<p>步入到<code>org.apache.struts2.views.jsp.ComponentTagSupport</code>，执行<code>doStartTag</code>:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/Znh8mV.png" alt></p>
+<p>解析结束标签<code>doEndTag</code>:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/Znh1O0.png" alt></p>
+<p>步入到<code>org.apache.struts2.components.UIBean</code>的<code>end()</code>:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhGwT.png" alt></p>
+<p>步入<code>evaluteParams()</code>:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhQln.png" alt></p>
+<p><img src="https://s2.ax1x.com/2019/06/27/Znhlyq.jpg" alt></p>
+<p>执行<code>this.altSyntax()</code>后，由于默认是支持动态执行OGNL的因此会返回True，从而完成对<code>expr</code>的赋值.</p>
+<p>而对<code>expr</code>中的值进行计算的过程则在这一步进行:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhMSs.jpg" alt></p>
+<p>步入后会进入<code>findValue()</code>：</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhuWj.jpg" alt></p>
+<p>继续步入，接着进入<code>translateVariables()</code>，在<code>translateVariables</code>中，有一步是十分关键的:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhnYQ.jpg" alt></p>
+<p>即，循环解析<code>{</code>符号，我们可以通过插入<code>%{1+1}</code>这样的poc使得执行OGNL表达式.</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhZTS.jpg" alt></p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhVw8.jpg" alt></p>
+<p>上面两张图便是循环两次分别的变量值，可以看到在第一次解析后，对<code>password</code>中的OGNL表达式循环执行了，在<code>findValue()</code>中完成了对OGNL的执行。</p>
+<h2 id="exp构造"><a class="markdownIt-Anchor" href="#exp构造"></a> EXP构造</h2>
+<p>作为Struts2系列漏洞的&quot;鼻祖&quot;，此时还是没有任何安全防范措施的，因此直接执行<code>exec</code>:</p>
+<p><img src="https://s2.ax1x.com/2019/06/27/ZnhmFg.jpg" alt></p>
+
+    </div>
+
+    
+</div>
+    <div class="footer" id="footer">
+    <p>Copyright © 2020 Meizj.
+        <!-- <label class="el-switch el-switch-green el-switch-sm" style="vertical-align: sub;">
+            <input type="checkbox" name="switch" id="update_style">
+            <span class="el-switch-style"></span>
+        </label> -->
+<!--         <script type="text/javascript">
+        var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+        document.write(unescape("%3Cspan id='cnzz_stat_icon_1278548644'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "v1.cnzz.com/stat.php%3Fid%3D1278548644%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+        </script> -->
+    </p>
+</div>
+<input type="hidden" id="web_style" value="white">
+<input type="hidden" id="valine_appid" value="CmCti21ooOOIzFOhEyFkFvR0-gzGzoHsz">
+<input type="hidden" id="valine_appKey" value="FqiyUqbg7McKN2eG0MCewupf">
+<script src="/libs/jquery.min.js"></script>
+<script src="/libs/highlight/highlight.pack.js"></script>
+<script src='//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<script src="//unpkg.com/heti/umd/heti-addon.min.js"></script>
+<script>
+    const heti = new Heti('.heti');
+    heti.autoSpacing();
+  </script>
+<script src="/js/js.js"></script>
+<style type="text/css">
+.v * {
+    color: #698fca;
+}
+
+.v .vlist .vcard .vhead .vsys {
+    color: #3a3e4a;
+}
+
+.v .vlist .vcard .vh .vmeta .vat {
+    color: #638fd5;
+}
+
+.v .vlist .vcard .vhead .vnick {
+    color: #6ba1ff;
+}
+
+.v a {
+    color: #8696b1;
+}
+
+.v .vlist .vcard .vhead .vnick:hover {
+    color: #669bfc;
+}
+</style>
+</body>
+
+</html>
