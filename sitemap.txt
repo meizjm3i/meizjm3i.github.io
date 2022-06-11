@@ -10,8 +10,8 @@ https://meizjm3i.github.io/2022/01/14/2021-final/
 https://meizjm3i.github.io/2019/03/18/CVE-2018-1273%EF%BC%9ASpring-Data-Commons-%E8%A7%A3%E6%9E%90%E5%99%A8%E9%80%89%E6%8B%A9%E4%B8%8D%E5%BD%93%E5%AF%BC%E8%87%B4%E7%9A%84RCE/
 https://meizjm3i.github.io/2018/02/13/CVE-2018-6893/
 https://meizjm3i.github.io/2019/10/31/CVE-2019-11043-%E6%BC%8F%E6%B4%9E%E8%B0%83%E8%AF%95%E7%AC%94%E8%AE%B0/
-https://meizjm3i.github.io/2019/07/07/Commons-Collections%E6%96%B0%E5%88%A9%E7%94%A8%E9%93%BE%E6%8C%96%E6%8E%98%E5%8F%8AWCTF%E5%87%BA%E9%A2%98%E6%80%9D%E8%B7%AF%E4%B8%B2%E8%AE%B2/
 https://meizjm3i.github.io/2018/04/01/Dedecms_Backend_Getshell/
+https://meizjm3i.github.io/2019/07/07/Commons-Collections%E6%96%B0%E5%88%A9%E7%94%A8%E9%93%BE%E6%8C%96%E6%8E%98%E5%8F%8AWCTF%E5%87%BA%E9%A2%98%E6%80%9D%E8%B7%AF%E4%B8%B2%E8%AE%B2/
 https://meizjm3i.github.io/2018/03/01/DrDOS-In-Memcache/
 https://meizjm3i.github.io/2019/06/05/FastJson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%A7%A3%E6%9E%90%E6%B5%81%E7%A8%8B/
 https://meizjm3i.github.io/2018/07/04/GoogleCTF-2018-Writeup-JsSafe-Translate-catChat-gCalc/
