@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <!-- <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css" /> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500&family=Roboto+Serif:opsz,wght@8..144,100&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>
+        梅子酒の笔记本
+    </title>
+    <link rel="stylesheet" href="/libs/highlight/styles/monokai-sublime.css">
+    <link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+<link rel="alternate" href="/atom.xml" title="梅子酒の笔记本" type="application/atom+xml">
+</head>
+
+<body id="bodyx">
+    <div class="hd posts">
+    <a href="/index.html"><i class="fa fa-reply replay-btn" aria-hidden="true"></i></a>
+    <div class="post-title">
+        <p>
+            Taie-食用指南(一)
+        </p>
+        <hr>
+    </div>
+    <div class="post-content heti">
+        <p>这几年静态分析相关领域在安全中也逐渐火热起来，很多人的静态分析第一堂课是从南京大学的谭添、李樾两位老师开设的《软件分析》这门课程开始的。在这堂课最初的作业中，他们基于Soot设计了一种名为&quot;bamboo&quot;的自研程序分析框架，学生可以在这个框架的基础上来自行设计算法完成课后实验，然而可惜的是这一套框架的源码并未对外公布，绝大部分的校外人员只能通过视频来进行这门课程的学习。</p>
+<p>今年四月份的时候两位老师发布了一个新的且同样基于Soot的自研程序分析框架&quot;Tai-e&quot;，原文地址如下：<a href="https://zhuanlan.zhihu.com/p/488957195" target="_blank" rel="noopener">南京大学《软件分析》实验作业平台“太阿”发布通知</a>，相关实验主页地址为：<a href="https://tai-e.pascal-lab.net/intro/overview.html" target="_blank" rel="noopener">太阿教学版</a>，github地址为：<a href="https://github.com/pascal-lab/Tai-e-assignments" target="_blank" rel="noopener">Tai-e-assignments</a>。</p>
+<p>这个新的框架的教学版对所有人开源，并发布了八个课后实验，分别为：</p>
+<ul>
+<li>活跃变量分析和迭代求解器</li>
+<li>常量传播和Worklist求解器</li>
+<li>死代码检测</li>
+<li>类层次结构分析与过程间常量传播</li>
+<li>非上下文敏感指针分析</li>
+<li>上下文敏感指针分析</li>
+<li>Alias-Aware的过程间常量传播</li>
+<li>污点分析</li>
+</ul>
+<p>之前我在知识星球转发了Tai-e的发布通知，并且在之后的这段时间中也挨个地在做这个八个课后实验，其中也遇到了很多困惑的问题。鉴于目前的学习资料除了官网主页和一个叫做<a href="https://github.com/RicoloveFeng/SPA-Freestyle-Guidance" target="_blank" rel="noopener">SPA-Freestyle-Guidance</a>的南大学生维护的个人仓库之外，并没有什么其余的学习资料。前者由于出于&quot;作业&quot;的考虑只能点到为止，后者则过于简略以致于对实际遇到的思路问题帮助不大。因此便有了本文：Taie-食用指南(一)，希望能对同样在学习这门课程的朋友起到一些帮助。</p>
+<p>在(一)这篇文章中，会对前两个实验的一些实现思路进行更详细的说明，由于本系列文章是完成实验后才开始写的，因此阅读自己的代码回忆当时遇到的问题又会耗费一些时间，所以不对更新时间做出任何承诺。</p>
+<p>同时，由于个人代码水平比较烂，就不放出算法本身源码，而是以思路分析为主。</p>
+<h1 id="活跃变量分析和迭代求解器"><a class="markdownIt-Anchor" href="#活跃变量分析和迭代求解器"></a> 活跃变量分析和迭代求解器</h1>
+<p>首先你需要仔细阅读两位老师的官方引导：<a href="https://tai-e.pascal-lab.net/pa1.html#_1-%E4%BD%9C%E4%B8%9A%E5%AF%BC%E8%A7%88" target="_blank" rel="noopener">作业 1：活跃变量分析和迭代求解器</a>，其中出现的基础数据结构和常用类本文将不再介绍，如果你还没有尝试着自行设计该实验的算法，那么我建议你停止阅读本文，等自己实现遇到了问题再继续也不迟。</p>
+<h2 id="test测试文件阅读顺序"><a class="markdownIt-Anchor" href="#test测试文件阅读顺序"></a> test测试文件阅读顺序</h2>
+<p>在本节实验中，一共有6个Java代码测试文件，并给出了它们所对应的分析结果文件：*-livevar-expected.txt，按照我的个人经验，我推荐在进行算法设计时，可以按照这个顺序来进行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Assign.java -&gt; Brach.java -&gt; Array.java -&gt; BrachLoop.java -&gt; Reference.java -&gt; Fibonacci.java</span><br></pre></td></tr></table></figure>
+<p>在这个顺序中，后面文件的分析一般需要你已经完成了前置文件的分析。</p>
+<p>比如赋值语句的分析是最基础的，因此Assign.java在最前面，而Branch.java在此基础上又多了&quot;控制流跳转&quot;的处理，Array.java中的for循环则是被拆解成了If语句，需要你已经完成了控制流跳转的处理才能继续分析。</p>
+<p>Reference.java中出现了方法调用，需要你对invoke系列的指令进行处理，而Fibonacci.java的分析则需要在这基础上进行。</p>
+<h2 id="从测试文件看一些思路如何实现"><a class="markdownIt-Anchor" href="#从测试文件看一些思路如何实现"></a> 从测试文件看一些思路如何实现</h2>
+<p>先贴一下算法的抽象表述：</p>
+<p><img src="https://blog-pic-meizj.oss-cn-shanghai.aliyuncs.com/2022/07/LVA1.png" alt></p>
+<p>我会挑选一些测试文件来说明实现的思路，仅供参考。</p>
+<h3 id="基础思路"><a class="markdownIt-Anchor" href="#基础思路"></a> 基础思路</h3>
+<p>从Assign.java文件开始，这是活跃变量分析中最基础的功能，也就是最简洁的变量赋值、引用、重定义这几种情况。我们所需要做的就是通过backward分析，将每个stmt（也就是你在expected.txt里看到的一行代码）的变量使用、定义进行收集，并按照PPT里的算法进行meetInto()、transferNode()这些操作。</p>
+<p>backward分析如何设计呢？一种比较简单的方法就是通过cfg的getPredsNode(Stmt)函数进行遍历，getPredsNode(Stmt)函数会获取传入的stmt参数的前驱节点，通过不断的循环，就可以从exit循环到entry。</p>
+<p>需要注意的是，在算法中只有满足IN不再发生变化时才结束分析，因此一次遍历往往是不够的，需要你在抵达entry时，重新从exit进行分析。</p>
+<p>如何表示&quot;IN不再发生变化&quot;呢？我的思路是，IN是与stmt关联的，其每一轮的状态只有&quot;不稳定&quot;和&quot;稳定&quot;两种，也就对应true和false，只需要一个HashMap&lt;Stmt, Boolean&gt;即可用来表示所有节点的IN变化状态。比如我以false表示不稳定，true表示稳定，当所有的stmt都满足true时，就可以结束循环了。true和false在哪里赋值呢？自然是transferNode了，这一点两位老师的官方引导里也写了。</p>
+<h3 id="对分支进行处理"><a class="markdownIt-Anchor" href="#对分支进行处理"></a> 对分支进行处理</h3>
+<p>在Taie中，for、while、switch这些隐含了控制流跳转的语句类型，都被转换为了If语句，因此无论是Array.java、Branch.java还是BranchLoop.java，本质上都是对If语句的分析。If语句通过goto和nop来表示条件语句true、false时不同的走向。我们就从Array.java这个文件来一窥究竟。</p>
+<p>首先来看一下它的IR结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">-------------------- &lt;Array: int sum(int[])&gt; (livevar) --------------------</span><br><span class="line">[0@L4] result = 0; [arr, result]</span><br><span class="line">[1@L5] i = 0; [arr, i, result]</span><br><span class="line">[2@L5] nop; [arr, i, result]</span><br><span class="line">[3@L5] temp$0 = arr.length; [arr, i, result, temp$0]</span><br><span class="line">[4@L5] if (i &lt; temp$0) goto 6; [arr, i, result]</span><br><span class="line">[5@L5] goto 13; [result]</span><br><span class="line">[6@L5] nop; [arr, i, result]</span><br><span class="line">[7@L6] temp$4 = arr[i]; [arr, i, result, temp$4]</span><br><span class="line">[8@L6] result = result + temp$4; [arr, i, result]</span><br><span class="line">[9@L6] nop; [arr, i, result]</span><br><span class="line">[10@L5] %intconst0 = 1; [%intconst0, arr, i, result]</span><br><span class="line">[11@L5] i = i + %intconst0; [arr, i, result]</span><br><span class="line">[12@L5] goto 2; [arr, i, result]</span><br><span class="line">[13@L5] nop; [result]</span><br><span class="line">[14@L8] return result; []</span><br></pre></td></tr></table></figure>
+<p>由于是backward，因此从语句14@L8开始，我们可以按照cfg的inedge逻辑进行流程梳理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// backward 逻辑</span><br><span class="line">14@L8 -&gt; 13@L5 -&gt; 5@L5 -&gt; 4@L5 -&gt; 3@L5 -&gt; 2@L5 -&gt; 1@L5 -&gt; 0@L5</span><br></pre></td></tr></table></figure>
+<p>注意这里由于存在for循环的原因，逻辑是不完整的，这里由于if语句存在多种可能性，因此执行流也会多种情况，对应到cfg上就是<code>4@L5</code>的outedge不止一个，当然也可以说<code>2@L5</code>的inedge不止一个，本质上是从代码中的for语句开始执行流有了分叉：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 按照backward逻辑分析，则应该以2@L5入手</span><br><span class="line">情况一： 3@L5 -&gt; 2@L5</span><br><span class="line">情况二： 12@L5 -&gt; 2@L5</span><br></pre></td></tr></table></figure>
+<p>对于这种不同的分支应该如何处理？</p>
+<p>首先，分支产生时，必然是由于某个stmt的inedge(或outedge)存在不止一种情况，因此&quot;分支&quot;和&quot;分歧点&quot;是存在一定绑定关系的。比如，从代码上来说，我们可以设计一个变量，类型为HashMap&lt;Stmt, Stmt&gt;，前一个stmt为不同分支的第一个节点，后一个stmt为分歧点stmt。这样就可以在完成分歧点的另一条分支backward分析后，继续接着原来的分歧点进行分析。用图表示这段话就是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">14@L8 -&gt; 13@L5 -&gt; 5@L5 -&gt; 4@L5 -&gt; 3@L5 -&gt; 2@L5 -&gt; 创建HashMap(stmt, stmt)-&gt; 12@L5 -&gt; ..... -&gt; 2@L5 -&gt; 1@L5</span><br></pre></td></tr></table></figure>
+<p>当然Branch.java还是有一些不同的，两个return语句所带来的的结果就是运行cfg.getPredsNode(cfg.getExit())时，会返回不止一个结果，因此不能通过简单的对PredsNode进行for循环处理，这里可以使用上面对于&quot;分支&quot;类似的方式。</p>
+<p>而至于剩下的Reference.java、Fibonacci.java则没什么好说的，唯一需要的注意的是，Fibonacci.java存在一个&quot;断头goto节点&quot;，这里也是需要重新跑一遍循环的。</p>
+<h1 id="常量传播和worklist求解器"><a class="markdownIt-Anchor" href="#常量传播和worklist求解器"></a> 常量传播和Worklist求解器</h1>
+<p>常量传播和活跃变量分析一个比较显著的区别就是，常量传播的算法中存在workList这么一个概念。</p>
+<p>与活跃变量分析中有IN发生改变就需要跑一遍完整循环不同，workList只需要对其中的stmt进行处理，直至不再有新元素加入其中即可。这个workList你可以选择你喜欢的类型，我使用的是HashSet。</p>
+<p>常量分析一共有7个测试样例，同样的，我个人推荐的分析顺序如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Assign.java -&gt; SimpleChar.java -&gt; SimpleConstant.java -&gt; SimpleBinary.java -&gt; SimpleBranch.java -&gt; BranchConstant.java -&gt; Interprocedural.java</span><br></pre></td></tr></table></figure>
+<p>测试样例的普遍思路很清晰，就是对不同类型的常量构建分析算法，比如Char、Int、二元操作符等，这一节的工作量主要在于transfer function的设计，不过PPT也写的很详细了，耐心地将各种条件转换为代码即可。在有了第一节实验的基础上，这一节遇到的问题相较而言会少很多。</p>
+<p>如果你觉得这个测试样例的难度太低，也可以自己尝试加入一些复杂的语法结构，比如参考活跃变量分析中的Array.java、BranchLoop.java这些测试样例来自行设计。</p>
+<h1 id="deadcode检测"><a class="markdownIt-Anchor" href="#deadcode检测"></a> deadCode检测</h1>
+<p>deadCode检测要求我们已经完成了前两个实验，没有前两个实验，我们就无法判断哪些变量是没有被使用的、哪些控制流是不可达的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DeadAssignment.java -&gt; ControlFlowUnreachable.java -&gt; Loops.java -&gt; UnreachableIfBranch.java -&gt; UnreachableSwitchBranch.java</span><br></pre></td></tr></table></figure>
+<p>也因此，如果前两节的算法实现存在一些问题并且没有被测试样例覆盖到的话，在这一节中就有可能被触发从而使deadCode检测卡在前面实验所设计的算法上。</p>
+<p>在Loops.java中由于while条件为Constant，因此会导致while后的语句无法执行从而被判断为deadCode，这本质上是将If语句中不可能满足执行条件的一条Edge的后续所有节点全部归为deadCode。</p>
+<p>但是每个Edge只包含两个节点之间的关系，如果要将后续不存在直接关系的节点也覆盖到，便需要使用BFS或者DFS进行遍历。当然，或许还有其他更优化的算法，但限于算法水平拉胯，我只能这么处理。</p>
+<p>说起来有点抽象，我们不如结合一下代码来看，下面是deadLoop函数做常量传播得到的结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[0@L4] x = 1; &#123;x=1&#125;</span><br><span class="line">[1@L5] y = 0; &#123;x=1, y=0&#125;</span><br><span class="line">[2@L6] z = 100; &#123;x=1, y=0, z=100&#125;</span><br><span class="line">[3@L6] nop; &#123;x=1, y=0, z=100&#125;</span><br><span class="line">[4@L7] if (x &gt; y) goto 6; &#123;x=1, y=0, z=100&#125;</span><br><span class="line">[5@L7] goto 9; &#123;x=1, y=0, z=100&#125;</span><br><span class="line">[6@L7] nop; &#123;x=1, y=0, z=100&#125;</span><br><span class="line">[7@L8] invokevirtual %this.&lt;Loops: void use(int)&gt;(z); &#123;x=1, y=0, z=100&#125;</span><br><span class="line">[8@L7] goto 3; &#123;x=1, y=0, z=100&#125;</span><br><span class="line">[9@L7] nop; &#123;x=1, y=0, z=100&#125;</span><br><span class="line">[10@L10] invokevirtual %this.&lt;Loops: void dead()&gt;(); &#123;x=1, y=0, z=100&#125;</span><br><span class="line">[11@L10] return; &#123;x=1, y=0, z=100&#125;</span><br></pre></td></tr></table></figure>
+<p>其中以下部分会被标记为deadCode：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[5@L7] goto 9;</span><br><span class="line">[9@L7] nop;</span><br><span class="line">[10@L10] invokevirtual %this.&lt;Loops: void dead()&gt;();</span><br><span class="line">[11@L10] return;</span><br></pre></td></tr></table></figure>
+<p>体现在源代码上则是while代码块后的所有语句都被标记为deadCode，因此与之相关的跳转操作也同样被标记为了deadCode：由于4@L7的判断恒为真，因此也就5@L7不可能被执行，因此goto所跳转的后续节点全部都被标记为deadCode。</p>
+<p>while语句和if语句的不同就在于while是可能陷入死循环的，而一旦陷入死循环，while代码块后的语句就不再会被执行，也就成为了deadCode。而if语句无论条件是true还是false，都会继续向下执行，因此只有某条条件路径会被标记为deadCode，这也是UnreachableIfBranch.java和Loops.java的区别所在。</p>
+<p>UnreachableSwitchBranch.java的特别在于用了switch语句，因此边的类型就不再只是IF_TRUE和IF_FALSE，而多了SWITCH_CASE、SWITCH_DAFULT。只需要耐心地对新增的边类型加以处理即可</p>
+<p>当然以上都是条件值为Constant的情况下才能标记某一条分支为deadCode，如果条件值是NAC，那么不同的分支都有可能被执行，也就不能标记为deadCode。</p>
+<h1 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> 总结</h1>
+<p>这三个实验某种程度上是具有很高的连贯性的，从算法的设计思路上看，常量传播与活跃变量分析非常相似，从前置知识来看，deadCode检测又需要基于这两者才能进行。</p>
+<p>Tai-e本身有一个代码测试平台，你可以在上面验证自己算法设计的完善程度，但是可惜的是限于资源等原因只向教育邮箱用户开放注册，如果你没有教育邮箱的话，那么还是自己尝试着在每节实验中去设计额外的测试样例，已提供的测试样例还是有点略少的。</p>
+
+    </div>
+
+    
+</div>
+    <div class="footer" id="footer">
+    <p>Copyright © 2020 Meizj.
+        <!-- <label class="el-switch el-switch-green el-switch-sm" style="vertical-align: sub;">
+            <input type="checkbox" name="switch" id="update_style">
+            <span class="el-switch-style"></span>
+        </label> -->
+<!--         <script type="text/javascript">
+        var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+        document.write(unescape("%3Cspan id='cnzz_stat_icon_1278548644'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "v1.cnzz.com/stat.php%3Fid%3D1278548644%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+        </script> -->
+    </p>
+</div>
+<input type="hidden" id="web_style" value="white">
+<input type="hidden" id="valine_appid" value="CmCti21ooOOIzFOhEyFkFvR0-gzGzoHsz">
+<input type="hidden" id="valine_appKey" value="FqiyUqbg7McKN2eG0MCewupf">
+<script src="/libs/jquery.min.js"></script>
+<script src="/libs/highlight/highlight.pack.js"></script>
+<script src='//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+<!-- <script src="//unpkg.com/heti/umd/heti-addon.min.js"></script>
+<script>
+    const heti = new Heti('.heti');
+    heti.autoSpacing();
+</script> -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5JET59Z93Q"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-5JET59Z93Q');
+</script>
+<script src="/js/js.js"></script>
+<style type="text/css">
+.v * {
+    color: #698fca;
+}
+
+.v .vlist .vcard .vhead .vsys {
+    color: #3a3e4a;
+}
+
+.v .vlist .vcard .vh .vmeta .vat {
+    color: #638fd5;
+}
+
+.v .vlist .vcard .vhead .vnick {
+    color: #6ba1ff;
+}
+
+.v a {
+    color: #8696b1;
+}
+
+.v .vlist .vcard .vhead .vnick:hover {
+    color: #669bfc;
+}
+</style>
+</body>
+
+</html>
