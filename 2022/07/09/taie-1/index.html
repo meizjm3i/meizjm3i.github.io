@@ -83,9 +83,9 @@
 <p>测试样例的普遍思路很清晰，就是对不同类型的常量构建分析算法，比如Char、Int、二元操作符等，这一节的工作量主要在于transfer function的设计，不过PPT也写的很详细了，耐心地将各种条件转换为代码即可。在有了第一节实验的基础上，这一节遇到的问题相较而言会少很多。</p>
 <p>如果你觉得这个测试样例的难度太低，也可以自己尝试加入一些复杂的语法结构，比如参考活跃变量分析中的Array.java、BranchLoop.java这些测试样例来自行设计。</p>
 <h1 id="deadcode检测"><a class="markdownIt-Anchor" href="#deadcode检测"></a> deadCode检测</h1>
-<p>deadCode检测要求我们已经完成了前两个实验，没有前两个实验，我们就无法判断哪些变量是没有被使用的、哪些控制流是不可达的。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DeadAssignment.java -&gt; ControlFlowUnreachable.java -&gt; Loops.java -&gt; UnreachableIfBranch.java -&gt; UnreachableSwitchBranch.java</span><br></pre></td></tr></table></figure>
-<p>也因此，如果前两节的算法实现存在一些问题并且没有被测试样例覆盖到的话，在这一节中就有可能被触发从而使deadCode检测卡在前面实验所设计的算法上。</p>
+<p>deadCode检测要求我们已经完成了前两个实验，没有前两个实验，我们就无法判断哪些变量是没有被使用的、哪些控制流是不可达的。也因此，如果前两节的算法实现存在一些问题并且没有被测试样例覆盖到的话，在这一节中就有可能被触发从而使deadCode检测卡在前面实验所设计的算法上。</p>
+<p>以下是我推荐的测试样例学习顺序：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DeadAssignment.java -&gt; ControlFlowUnreachable.java -&gt; UnreachableIfBranch.java -&gt; Loops.java  -&gt; UnreachableSwitchBranch.java</span><br></pre></td></tr></table></figure>
 <p>在Loops.java中由于while条件为Constant，因此会导致while后的语句无法执行从而被判断为deadCode，这本质上是将If语句中不可能满足执行条件的一条Edge的后续所有节点全部归为deadCode。</p>
 <p>但是每个Edge只包含两个节点之间的关系，如果要将后续不存在直接关系的节点也覆盖到，便需要使用BFS或者DFS进行遍历。当然，或许还有其他更优化的算法，但限于算法水平拉胯，我只能这么处理。</p>
 <p>说起来有点抽象，我们不如结合一下代码来看，下面是deadLoop函数做常量传播得到的结果：</p>
